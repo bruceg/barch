@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>BArch File Format</title>
+</head>
+
+<body>
+<div align=center><h1>BArch File Format</h1></div><hr>
+
+<p>All numbers are encoded in ASCII decimal, unless another base is
+specified, terminated by either a colon (':') or a NUL byte.
+
+<p>A BArch file contains a stream of records.
+Each record contains the following parts:<ol>
+<li>The constant string "=BArch3\n" (in hex: 3d 42 41 72 63 68 33 0a)
+<li>A single byte identifying the record type
+<li>The path, followed by a NUL byte
+<li>The metadata string, followed by a NUL byte
+<li>A series of data chunks composed of:<ol>
+  <li>The record content length (L), followed by a colon
+  <li>L bytes of content data
+<li>A zero-byte chunk
+<li>CRC64 checksum on the data starting at the record type byte and
+ending at the last byte of the data
+<li>Optional NUL padding: enough NUL bytes to pad the record out to a
+multiple of blocksize bytes if the blocksize is non-zero (defaults to
+zero).
+</ol></p>
+
+<table border=1>
+
+<tr> <th>Record type</th> <th>Symbol</th> <th>Metadata Description</th>
+<th>Content Description</th> </tr>
+
+<tr> <td>Start-of-archive</td> <td>^</td> <td>A series of parameters
+separated by "&".  The name and value in a parameter are seperated by
+"=" and the contents are URL-encoded.</td> <td>A list of the paths used
+to build the archive, each terminated with a NUL byte, prefixed with
+either a '+' (included paths), or a '-' (excluded paths).  This will
+eventually be used to determine which paths to extract could be in the
+archive before scanning the archive, to reduce search overheads.</td>
+</tr>
+
+<tr> <td>Directory</td> <td>d</td> <td>Standard file metadata</td> <td>A
+list of all the files in the directory, each terminated with a NUL
+byte</td> </tr>
+
+<tr> <td>File</td> <td>f</td> <td>Standard file metadata</td> <td>The
+raw contents of the file</td> </tr>
+
+<tr> <td>Incremental File</td> <td>i</td> <td>Standard file
+metadata</td> <td>Undetermined</td> </tr>
+
+<tr> <td>Block Device</td> <td>b</td> <td>Standard file metadata</td>
+<td>The major and minor numbers, in hexadecimal, separated by a
+comma</td> </tr>
+
+<tr> <td>Character Device</td> <td>c</td> <td>Standard file
+metadata</td> <td>The major and minor numbers, in hexadecimal, separated
+by a comma</td> </tr>
+
+<tr> <td>Hard Link</td> <td>h</td> <td>None</td> <td>The path being
+linked to</td> </tr>
+
+<tr> <td>Symbolic Link</td> <td>l</td> <td>None</td> <td>The path being
+linked to</td> </tr>
+
+<tr> <td>Named Pipe</td> <td>p</td> <td>Standard file metadata</td>
+<td>None</td> </tr>
+
+<tr> <td>Named Socket</td> <td>s</td> <td>Standard file metadata</td>
+<td>None</td> </tr>
+
+<tr> <td>End-of-archive</td> <td>#</td> <td>None</td> <td>None</td>
+</tr>
+
+</table>
+
+<h2>Standard File metadata</h2>
+
+<p>The standard file metadata is composed of a series of tagged values
+seperated by colons:<dl>
+
+<dt>s <dd>File size (distinct from data size).
+<dt>p <dd>UNIX file mode, in octal
+<dt>c <dd>Change time
+<dt>m <dd>Modification time
+<dt>o <dd>Owner ID number
+<dt>g <dd>Group ID number
+<dt>O <dd>Owner name
+<dt>G <dt>Group name
+
+</dl>Times are represented as the number of seconds since the UNIX
+epoch (midnight GMT January 1, 1970).</p>
+
+<h2>Prefix Record Parameters</h2>
+
+<p>The following parameters are written in the prefix record to identify
+parameters detailing how the archive was created for the extractor:<dl>
+
+<dt><tt>incremental</tt> <dd>Has non-zero value if the archive was
+created with incremental mode turned on, zero otherwise.
+
+</dl></p>

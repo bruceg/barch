@@ -1,0 +1,29 @@
+- Update design-notes
+
+Create:
+
+- dump file data to a CDB? for incremental backups
+  - Store timestamp of start of backup (in "" record)
+  - Store dev/ino (key) of each listed file and each directory
+
+- Listed incremental backup:
+  - Look up last timestamp in CDB
+  - From tar:
+     The file FILE, which is archive independent, contains the date it
+     was last modified and a list of devices, inode numbers and directory
+     names.  `tar' will archive files with newer mod dates or inode change
+     times, and directories with an unchanged inode number and device but a
+     changed directory name.
+
+Extract:
+
+- Validate the SOA parameters.
+
+- unhandled file types:
+    b -- block device
+    c -- character device
+
+- Incremental restore:
+  - For each directory listed in the archive:
+    - Unlink files in the destination not listed in the directory record
+    - Warn about files not present in the destination

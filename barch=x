@@ -1,0 +1,12 @@
+create.o
+extract.o
+fndict.o
+meta.o
+pwcache.o
+list.o
+read.o
+show.o
+snapshot.o
+write.o
+-lbg-cli
+-lbg

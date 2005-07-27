@@ -1,0 +1,40 @@
+@PACKAGE@
+Short Description
+Bruce Guenter <bruceg@em.ca>
+Version @VERSION@
+@TODAY@
+
+This package contains an archiver, similar to tar, but designed
+specifically to improve on some of the deficiencies that tar has.
+
+Right now the implementation is pretty bare bones, but it is being
+released as a kind of "proof of concept" in the hopes of getting some
+feedback on the concepts and/or preliminary implementation.
+
+Little to no documentation is available.  Look in the doc directory for
+a few design notes, and run "barch --help" for command-line options.
+
+A mailing list has been set up to discuss this and other packages.
+To subscribe, send an email to:
+	bgware-subscribe@lists.untroubled.org
+A mailing list archive is available at:
+	http://lists.untroubled.org/?list=bgware
+
+Development versions of @PACKAGE@ are available via Subversion at:
+	svn://bruce-guenter.dyndns.org/@PACKAGE@/trunk
+
+Installation:
+
+- Make sure the latest version of bglibs from
+  http://untroubled.org/bglibs/ is compiled and installed.
+- Build the sources by running "make"
+- Run the "instshow" command to see what will be installed (optional).
+- After the package has been compiled, run the following commands as root:
+	./installer
+	./instcheck
+  These commands will produce no output if there are no errors.
+
+This package is Copyright(C) 2003 Bruce Guenter, and may be copied
+according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later
+version.  A copy of this license is included with this package.  This
+package comes with no warranty of any kind.
