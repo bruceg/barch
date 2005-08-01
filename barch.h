@@ -35,6 +35,7 @@ extern const char* opt_snapshot;
 extern time_t opt_timestamp;
 extern int opt_usetmp;
 extern int opt_verbose;
+extern int opt_totals;
 
 extern const char stamp[8];
 extern pid_t pid;

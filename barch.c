@@ -31,6 +31,7 @@ const char* opt_snapshot = 0;
 int opt_usetmp = 1;
 int opt_verbose = 0;
 time_t opt_timestamp = 0;
+int opt_totals = 0;
 
 static int cmd_create = 0;
 static int cmd_list = 0;
@@ -115,6 +116,8 @@ cli_option cli_options[] = {
     "Show more information about progress", 0 },
   { 0, "checkpoint", CLI_FLAG, 1, &opt_checkpoint,
     "Print directory names as they are processed", 0 },
+  { 0, "totals", CLI_FLAG, 1, &opt_totals,
+    "Print total bytes written when creating archive", 0 },
   {0,0,0,0,0,0,0}
 };
 

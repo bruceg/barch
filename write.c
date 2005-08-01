@@ -115,6 +115,13 @@ void close_output(void)
 {
   write_prefix(TYPE_END, "", "");
   write_end();
+  if (!obuf_flush(out))
+    die3sys(1, "Could not write to '", opt_filename, "'");
+  if (opt_totals) {
+    obuf_puts(list, "Total bytes written: ");
+    obuf_putu(list, out->io.offset);
+    obuf_endl(list);
+  }
   if (!obuf_close(out))
     die3sys(1, "Could not close '", opt_filename, "'");
 }
