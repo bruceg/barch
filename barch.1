@@ -1,0 +1,102 @@
+.\" $Id$
+.TH barch 1
+.SH NAME
+barch \- backup archive utility
+.SH SYNOPSIS
+.B barch
+.I <operation>
+.I [options]
+.SH DESCRIPTION
+barch is an archive utility specifically designed with the needs of the
+backup and restore process in mind.
+.SH OPTIONS
+Most of the following options were adopted from
+.B tar
+in order to ease migration from one tool to the other.
+.SS Operation Modes
+.TP
+.B -c, --create
+Create a new archive.
+.TP
+.B -t, --list
+List the contents of an archive.
+.TP
+.B -x, --extract
+Extract files from an archive.
+.SS Operation Modifiers
+.TP
+.B -g, --incremental
+When creating an archive, record all of the files encountered in each
+matching directory in the archive file, for use when extracting the
+archive.  When extracting files from an archive, the list of files in
+each matching directory is compared against the files in the
+corresponding destination directory.  All files present in the
+destination that are not listed in the archive are removed.
+.TP
+.B --overwrite-files
+Overwrite files directly instead of using temporary files.
+.SS Archive I/O Options
+.TP
+.B -f FILE, --file=FILE
+Archive filename (defaults to standard input when reading archives, or
+standard output when writing archives).
+.SS Local File Selection
+.TP
+.B -C PATH, --directory=PATH
+Change to named directory after opening archive and before reading or
+writing files.
+.TP
+.B --exclude=PATTERN
+File names to exclude files, given as a glob pattern.
+.TP
+.B -X FILE, --exclude-from=FILE
+Exclude patterns listed in the named file.
+.TP
+.B --include=PATTERN
+Include files, given as a glob pattern
+.TP
+.B -I FILE, --include-from=FILE
+Include patterns listed in the named file
+.TP
+.B --patterns-from=FILE
+Ex/include patterns listed in the named file.  Each line in the file
+contains one pattern, prefixed by either
+.B +
+for files to include, or
+.B -
+for files to exclude.  Lines starting with
+.B #
+are ignored.  The patterns are applied in order, and the first matching
+pattern determines the outcome.
+.TP
+.B -P, --absolute-names
+Don't strip leading '/'s from file names
+.TP
+.B -h, --dereference
+Dump instead the files symlinks point to
+.TP
+.B -N FILE, --newer=FILE, --after-date=FILE
+Only store files newer than the given file
+.TP
+.B --snapshot=FILE
+Snapshot CDB for creating incremental archives
+.SS Informative Output
+.TP
+.B -v, --verbose
+Show more information about progress.  This option may be used multiple
+times.
+.TP
+.B --checkpoint
+Print directory names as they are processed.
+.TP
+.B --totals
+Output the total number of bytes written after the archive is created.
+.SH WARNINGS
+The default behavior of
+.B barch
+is to create temporary files and then rename them on top of the
+destination file.  This default behavior is required to overwrite files
+that are in use (ie mmaped), but it destroys any hard links to files
+being written.  Use
+.B --overwrite-files
+if this is a problem.
