@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Changes in version 0.5
+
+Since the last release, barch has been completely rewritten in C
+(instead of C++).  The resulting source is cleaner and easier to develop
+(not to mention at least slightly more efficient).  The resulting
+program is also more feature complete, and less of a prototype work.
+-------------------------------------------------------------------------------
