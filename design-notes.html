@@ -1,4 +1,12 @@
-<hr>
+<html>
+<head>
+<title>BArch Design Notes</title>
+</head>
+
+<body>
+<div align=center><h1>BArch Design Notes</h1></div>
+
+<hr />
 
 <p>Problem: tar, when doing listed incrementals, scans the entire
 filesystem, memorizes the list of files, and then writes them to the
@@ -8,7 +16,7 @@ archive, creating potential inconsistencies and warnings.</p>
 within the directory.  This allows the directory memorization to be done
 in a single pass at the same time as actually archiving those files.</p>
 
-<hr>
+<hr />
 
 <p>Problem: tar has problems with restoring directories that originally
 had no write bits set.</p>
@@ -17,7 +25,7 @@ had no write bits set.</p>
 modes on the directories are set after restoring the entire contents of
 the directory.</p>
 
-<hr>
+<hr />
 
 <p>Problem: when backing up changed files, cpio, tar, or zip will
 re-archive the entire file, even if only small parts of it has
@@ -32,7 +40,7 @@ becoming huge, the checksum block size will be set large, at 4K or 8K
 (rsync prefers an approximately 500 byte block size), with 20 bytes per
 checksum (32 bit fast checksum, plus 128 bit MD5 hash).</p>
 
-<hr>
+<hr />
 
 <p>Problem: tar fails to properly archive files that change length.  If
 the file shrinks, it gets padded with NUL bytes, and if it expands, the
@@ -42,7 +50,7 @@ extra data is ignored.</p>
 chunks.  This solution also accomodates record data for which the length
 is not known when the prefix is written.</p>
 
-<hr>
+<hr />
 
 <p>Issue: should filenames be written to the archive as (directory ID,
 file name) pairs, or as full filenames?</p>
@@ -56,13 +64,13 @@ is lost, we can't get out of sync with the filesystem.</p>
 
 <p>Resolution: use full filenames.</p>
 
-<hr>
+<hr />
 
 <p>Barch, when extracting files, writes all data to temporary files
 which are then renamed (by default).  This prevents the files from being
 either inconsistent or corrupted while data is being extracted.</p>
 
-<hr>
+<hr />
 
 <p>I feel that tar does too much that could be better achieved through
 external programs.  The hooks in GNU tar to gzip are handy but, strictly
@@ -72,4 +80,7 @@ streaming) which can have many more options than tar does.  The
 reblocking facility will be explicitly omitted from barch, and possibly
 other features.</p>
 
-<hr>
+<hr />
+
+</body>
+</html>
