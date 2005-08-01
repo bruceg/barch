@@ -68,6 +68,14 @@ static struct ghash pwuidcache;
 static struct ghash grgidcache;
 
 /* Public accessors **********************************************************/
+void pwcache_init(void)
+{
+  pwnamecache_init(&pwnamecache);
+  pwnamecache_init(&grnamecache);
+  pwuidcache_init(&pwuidcache);
+  pwuidcache_init(&grgidcache);
+}
+
 const char* getpwuidcache(long id)
 {
   struct pwuidcache_entry* e;

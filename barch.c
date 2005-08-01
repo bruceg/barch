@@ -265,13 +265,15 @@ extern int do_extract(int, char**);
 
 int cli_main(int argc, char* argv[])
 {
-  pid = getpid();
-  start_time = time(0);
-
   if (cmd_create + cmd_list + cmd_extract != 1)
     die1(1, "Must specify exactly one of create, list, or extract");
+
+  pid = getpid();
+  start_time = time(0);
+  pwcache_init();
   parse_timestamp();
   make_iobuf();
+
   if (cmd_create) return do_create(argc, argv);
   if (cmd_list) return do_list(argc, argv);
   if (cmd_extract) return do_extract(argc, argv);

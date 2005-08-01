@@ -208,6 +208,7 @@ int do_create(int argc, char* argv[])
 {
   int i;
   if (argc <= 0) die1(1, "Missing parameters");
+  dicache_init(&dicache);
   open_output(argc, argv);
   snapshot_open();
   do_chdir();

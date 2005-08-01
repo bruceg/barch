@@ -55,6 +55,7 @@ extern const char* make_meta(const struct stat* s);
 extern int parse_meta(struct stat* st, const char* s, str* uname, str* gname);
 
 /* pwcache.c */
+extern void pwcache_init(void);
 extern const char* getpwuidcache(long id);
 extern const char* getgrgidcache(long id);
 extern long getpwnamecache(const char* name);
