@@ -26,13 +26,9 @@ make
 
 %install
 rm -fr %{buildroot}
-#make install_prefix=%{buildroot} bindir=%{_bindir} mandir=%{_mandir} install
-
-mkdir -p %{buildroot}%{_bindir}
-install barch %{buildroot}%{_bindir}/barch
-
-mkdir -p %{buildroot}%{_mandir}/man1
-install -m 644 barch.1 %{buildroot}%{_mandir}/man1/barch.1
+echo %{buildroot}%{_bindir} >conf-bin
+echo %{buildroot}%{_mandir} >conf-man
+make install
 
 %clean
 rm -rf %{buildroot}
