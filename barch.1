@@ -25,13 +25,18 @@ List the contents of an archive.
 Extract files from an archive.
 .SS Operation Modifiers
 .TP
-.B -g, --incremental
+.B -g, -G, --incremental, --listed-incremental
 When creating an archive, record all of the files encountered in each
 matching directory in the archive file, for use when extracting the
 archive.  When extracting files from an archive, the list of files in
 each matching directory is compared against the files in the
 corresponding destination directory.  All files present in the
 destination that are not listed in the archive are removed.
+
+.B tar
+has separate options for listed and old format incremental backups.  For
+command-line compatibility both are allowed here, but the behavior is
+identical.
 .TP
 .B --overwrite-files
 When extracting an archive, overwrite files directly instead of using

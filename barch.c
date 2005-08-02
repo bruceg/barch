@@ -58,8 +58,10 @@ cli_option cli_options[] = {
     "Extract files from an archive", 0 },
 
   { 0, "Operation modifiers", CLI_SEPARATOR, 0, 0, 0, 0 },
-  { 'g', "incremental", CLI_FLAG, 1, &opt_incremental,
+  { 'G', "incremental", CLI_FLAG, 1, &opt_incremental,
     "Incremental backup or restore", 0 },
+  { 'g', "listed-incremental", CLI_FLAG, 1, &opt_incremental,
+    "Synonymous for --incremental", 0 },
   { 0, "overwrite-files", CLI_FLAG, 0, &opt_usetmp,
     "Don't extract to temporary files first", 0 },
   { 'j', "bzip2", CLI_FLAG, COMPRESS_BZ2, &opt_compress,
