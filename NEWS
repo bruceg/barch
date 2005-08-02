@@ -7,6 +7,8 @@ Changes in version 0.6
 - Fixed a bug in incremental backups where excluded files would still be
   listed (but not recorded) in the archive.
 
+- Fixed a couple of minor bugs in extracting incremental backups.
+
 Development of this version has been sponsored by FutureQuest, Inc.
 ossi@FutureQuest.net  http://www.FutureQuest.net/
 -------------------------------------------------------------------------------

@@ -236,7 +236,8 @@ static void do_incremental(const char* path, const str* entries)
     /* Check for files listed in the archive
      * but not present in the directory */
     for (striter_start(&i, entries, 0); striter_valid(&i); striter_advance(&i))
-      if (fndict_get(&dentries, (char**)&i.startptr)->data == 0) {
+      if (i.len > 0
+	  && fndict_get(&dentries, (char**)&i.startptr)->data == 0) {
 	fullpath.len = pathlen;
 	if (!str_catiter(&fullpath, &i)) die_oom(1);
 	warn3("File '", fullpath.s, "' is missing from destination");
@@ -278,7 +279,7 @@ static void extract_dir(const char* path, const char* meta)
   show_record(TYPE_HARDLINK, path, &st, length, uname.s, gname.s, 0, 0);
 
   if (read_end(path)) {
-    if (!exists && mkdirp(path, 000) != 0)
+    if (!exists && mkdirp(path, 0700) != 0)
       error3sys("Could not create directory '", path, "'");
     else {
       if (opt_incremental)
