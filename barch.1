@@ -34,7 +34,8 @@ corresponding destination directory.  All files present in the
 destination that are not listed in the archive are removed.
 .TP
 .B --overwrite-files
-Overwrite files directly instead of using temporary files.
+When extracting an archive, overwrite files directly instead of using
+temporary files.
 .TP
 .B -j, --bzip2
 Filter (compress or uncompress) the archive using
@@ -89,6 +90,14 @@ Dump instead the files symlinks point to
 .TP
 .B -N FILE, --newer=FILE, --after-date=FILE
 Only store files newer than the given file
+.TP
+.B --one-file-system
+When creating an archive, do not recurse into directories that are
+located on different filesystems from their parents.  The directory
+itself is still recorded in the archive, for compatibility with
+.BR tar .
+Note that directories specifically listed on the command line are always
+archived.
 .TP
 .B --snapshot=FILE
 Snapshot CDB for creating incremental archives

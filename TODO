@@ -4,7 +4,6 @@ Create:
 
 --owner
 --group
---one-file-system
 
 - dump file data to a CDB? for incremental backups
   - Store timestamp of start of backup (in "" record)

@@ -33,6 +33,7 @@ int opt_verbose = 0;
 time_t opt_timestamp = 0;
 int opt_totals = 0;
 int opt_compress = 0;
+int opt_onefilesystem = 0;
 
 static int cmd_create = 0;
 static int cmd_list = 0;
@@ -115,6 +116,8 @@ cli_option cli_options[] = {
     "Only store files newer than the given file", 0 },
   { 0, "after-date", CLI_STRING, 0, &opt_timestr,
     "Same as --newer", 0 },
+  { 0, "one-file-system", CLI_FLAG, 1, &opt_onefilesystem,
+    "Do not recurse into different file systems", 0 },
   { 0, "snapshot", CLI_STRING, 0, &opt_snapshot,
     "Snapshot CDB for creating incremental archives", 0 },
 

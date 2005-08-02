@@ -56,7 +56,7 @@ GHASH_DEFN(dicache,struct devino,char*,
 static struct ghash dicache;
 
 /*****************************************************************************/
-static void dump_rec(const char* path);
+static void dump_rec(const char* path, const struct stat* parent);
 
 static void dump_file(const char* path, const struct stat* st)
 {
@@ -72,17 +72,20 @@ static void dump_file(const char* path, const struct stat* st)
   }
 }
 
-static void dump_dir(const char* path, struct stat* st)
+static void dump_dir(const char* path, struct stat* st, int recurse)
 {
   DIR* dir;
   direntry* entry;
   str fullpath = {0,0,0};
   str entries = {0,0,0};
   long pathlen;
-  if ((dir = opendir(path)) == 0)
-    error3sys("Could not open directory '", path, "'");
-  else {
-    if (!str_copys(&fullpath, path) || !str_catc(&fullpath, '/')) die_oom(1);
+  if (recurse) {
+    if ((dir = opendir(path)) == 0) {
+      error3sys("Could not open directory '", path, "'");
+      return;
+    }
+    if (!str_copys(&fullpath, path) || !str_catc(&fullpath, '/'))
+      die_oom(1);
     pathlen = fullpath.len;
     while ((entry = readdir(dir)) != 0) {
       const char* name = entry->d_name;
@@ -92,27 +95,27 @@ static void dump_dir(const char* path, struct stat* st)
 	continue;
       fullpath.len = pathlen;
       if (!str_cats(&fullpath, name)) die_oom(1);
-      dump_rec(fullpath.s);
+      dump_rec(fullpath.s, st);
       if (opt_incremental)
 	if (!str_cats(&entries, name) ||
 	    !str_catc(&entries, 0))
 	  die_oom(1);
     }
     closedir(dir);
-    st->st_size = 0;
     if (entries.len > 0) --entries.len;
-    write_meta(TYPE_DIR, path, st);
-    if (opt_incremental)
-      write_data(entries.s, entries.len);
-    write_end();
-    if (opt_checkpoint && opt_verbose == 0) {
-      obuf_puts(list, path);
-      obuf_endl(list);
-    }
-    show_record(TYPE_DIR, path, st, entries.len, 0, 0, 0, 0);
-    str_free(&entries);
-    str_free(&fullpath);
   }
+  st->st_size = 0;
+  write_meta(TYPE_DIR, path, st);
+  if (opt_incremental)
+    write_data(entries.s, entries.len);
+  write_end();
+  if (opt_checkpoint && opt_verbose == 0) {
+    obuf_puts(list, path);
+    obuf_endl(list);
+  }
+  show_record(TYPE_DIR, path, st, entries.len, 0, 0, 0, 0);
+  str_free(&entries);
+  str_free(&fullpath);
 }
 
 static void dump_device(const char* path, struct stat* st, char type)
@@ -153,7 +156,7 @@ static void dump_symlink(const char* path, struct stat* st)
   show_record(TYPE_SYMLINK, path, st, len, 0, 0, 0, 0);
 }
 
-static void dump_rec(const char* path)
+static void dump_rec(const char* path, const struct stat* parent)
 {
   struct stat st;
   if (!check_filename(path, 0, 0)) return;
@@ -186,7 +189,10 @@ static void dump_rec(const char* path)
       if (S_ISREG(st.st_mode))
 	dump_file(path, &st);
       else if (S_ISDIR(st.st_mode))
-	dump_dir(path, &st);
+	dump_dir(path, &st,
+		 !opt_onefilesystem
+		 || (parent == 0)
+		 || (parent->st_dev == st.st_dev));
       else if (S_ISLNK(st.st_mode))
 	dump_symlink(path, &st);
       else if (S_ISCHR(st.st_mode))
@@ -213,7 +219,7 @@ int do_create(int argc, char* argv[])
   snapshot_open();
   do_chdir();
   for (i = 0; i < argc; ++i)
-    dump_rec(argv[i]);
+    dump_rec(argv[i], 0);
   obuf_flush(list);
   close_output();
   snapshot_close();
