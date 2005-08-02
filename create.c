@@ -95,11 +95,13 @@ static void dump_dir(const char* path, struct stat* st, int recurse)
 	continue;
       fullpath.len = pathlen;
       if (!str_cats(&fullpath, name)) die_oom(1);
-      dump_rec(fullpath.s, st);
-      if (opt_incremental)
-	if (!str_cats(&entries, name) ||
-	    !str_catc(&entries, 0))
-	  die_oom(1);
+      if (check_filename(fullpath.s, 0, 0)) {
+	dump_rec(fullpath.s, st);
+	if (opt_incremental)
+	  if (!str_cats(&entries, name) ||
+	      !str_catc(&entries, 0))
+	    die_oom(1);
+      }
     }
     closedir(dir);
     if (entries.len > 0) --entries.len;
