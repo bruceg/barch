@@ -1,3 +1,4 @@
+compress.o
 create.o
 extract.o
 fndict.o

@@ -11,6 +11,7 @@
 struct stat;
 struct str;
 struct cli_stringlist;
+struct iobuf;
 
 #define TYPE_START '^'
 #define TYPE_END '$'
@@ -25,6 +26,10 @@ struct cli_stringlist;
 #define TYPE_SOCKET 's'
 
 /* barch.c */
+#define COMPRESS_Z 1
+#define COMPRESS_GZ 2
+#define COMPRESS_BZ2 3
+
 extern int opt_absolute;
 extern int opt_checkpoint;
 extern int opt_dereference;
@@ -36,6 +41,7 @@ extern time_t opt_timestamp;
 extern int opt_usetmp;
 extern int opt_verbose;
 extern int opt_totals;
+extern int opt_compress;
 
 extern const char stamp[8];
 extern pid_t pid;
@@ -47,6 +53,11 @@ extern void do_chdir(void);
 extern void chdir_back(void);
 extern int check_filename(const char* filename, int argc, char* argv[]);
 extern void ready_iobuf(unsigned long size);
+
+/* compress.c */
+extern void compress_start(struct iobuf* io);
+extern void compress_end(void);
+extern void decompress_start(struct iobuf* io);
 
 /* fndict.c */
 GHASH_DECL(fndict,char*,int);

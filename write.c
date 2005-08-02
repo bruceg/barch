@@ -98,6 +98,7 @@ void open_output(int argc, char* argv[])
       die3sys(1, "Could not open output file '", opt_filename, "'");
     out = &output;
   }
+  compress_start(&out->io);
   /* Write out SOA record */
   write_prefix(TYPE_START, "", meta.s);
   // FIXME: concatenate into one chunk
@@ -124,4 +125,5 @@ void close_output(void)
   }
   if (!obuf_close(out))
     die3sys(1, "Could not close '", opt_filename, "'");
+  compress_end();
 }

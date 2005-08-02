@@ -142,9 +142,11 @@ void open_input(void)
       die3sys(1, "Could not open input file '", opt_filename, "'");
     in = &input;
   }
+  decompress_start(&in->io);
 }
 
 void close_input(void)
 {
+  compress_end();
   ibuf_close(in);
 }

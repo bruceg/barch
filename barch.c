@@ -32,6 +32,7 @@ int opt_usetmp = 1;
 int opt_verbose = 0;
 time_t opt_timestamp = 0;
 int opt_totals = 0;
+int opt_compress = 0;
 
 static int cmd_create = 0;
 static int cmd_list = 0;
@@ -60,6 +61,12 @@ cli_option cli_options[] = {
     "Incremental backup or restore", 0 },
   { 0, "overwrite-files", CLI_FLAG, 0, &opt_usetmp,
     "Don't extract to temporary files first", 0 },
+  { 'j', "bzip2", CLI_FLAG, COMPRESS_BZ2, &opt_compress,
+    "Filter the archive through bzip2", 0 },
+  { 'z', "gzip", CLI_FLAG, COMPRESS_GZ, &opt_compress,
+    "Filter the archive through gzip", 0 },
+  { 'Z', "compress", CLI_FLAG, COMPRESS_Z, &opt_compress,
+    "Filter the archive through compress", 0 },
 
 #if 0
   // FIXME: handle all these options
