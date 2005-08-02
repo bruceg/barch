@@ -2,6 +2,10 @@
 
 Create:
 
+--owner
+--group
+--one-file-system
+
 - dump file data to a CDB? for incremental backups
   - Store timestamp of start of backup (in "" record)
   - Store dev/ino (key) of each listed file and each directory
@@ -16,6 +20,10 @@ Create:
      changed directory name.
 
 Extract:
+
+--modification-time
+--[no-]same-owner
+--[no-]same-permissions / --preserve-permissions
 
 - Validate the SOA parameters.
 
