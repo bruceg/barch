@@ -28,6 +28,7 @@ const char* opt_filename = "-";
 int opt_incremental = 0;
 int opt_iobuflen = 64*1024;
 const char* opt_snapshot = 0;
+const char* opt_differential = 0;
 int opt_usetmp = 1;
 int opt_verbose = 0;
 time_t opt_timestamp = 0;
@@ -61,7 +62,9 @@ cli_option cli_options[] = {
   { 'G', "incremental", CLI_FLAG, 1, &opt_incremental,
     "Incremental backup or restore", 0 },
   { 'g', "listed-incremental", CLI_STRING, 0, &opt_snapshot,
-    "Synonymous for --incremental", 0 },
+    "Listed incremental backup (updates the file)", 0 },
+  { 0,   "differential", CLI_STRING, 0, &opt_differential,
+    "Listed incremental backup (no update)", 0 },
   { 0, "overwrite-files", CLI_FLAG, 0, &opt_usetmp,
     "Don't extract to temporary files first", 0 },
   { 'j', "bzip2", CLI_FLAG, COMPRESS_BZ2, &opt_compress,
@@ -286,7 +289,10 @@ int cli_main(int argc, char* argv[])
   pwcache_init();
   parse_timestamp();
   make_iobuf();
-  if (opt_snapshot != 0) opt_incremental = 1;
+  if (opt_snapshot != 0) {
+    opt_incremental = 1;
+    opt_differential = opt_snapshot;
+  }
 
   if (cmd_create) return do_create(argc, argv);
   if (cmd_list) return do_list(argc, argv);

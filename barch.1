@@ -41,6 +41,11 @@ contents of the output archive are limited to files that are newer than
 the timestamp in the file and all the contents of directories that do
 not match the information in the snapshot (ie have been renamed).
 .TP
+.B --differential=FILE
+Similar to the listed-incremental mode above, this mode uses the
+snapshot file to determine what files to archive, but does not update
+the file when the backup process is complete.
+.TP
 .B --overwrite-files
 When extracting an archive, overwrite files directly instead of using
 temporary files.

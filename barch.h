@@ -37,6 +37,7 @@ extern const char* opt_filename;
 extern int opt_incremental;
 extern int opt_iolen;
 extern const char* opt_snapshot;
+extern const char* opt_differential;
 extern time_t opt_timestamp;
 extern int opt_usetmp;
 extern int opt_verbose;
