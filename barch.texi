@@ -1,0 +1,289 @@
+\input texinfo    @c -*-texinfo-*-
+@c $Id$
+@c %**start of header
+@settitle Barch Documentation
+@c %**end of header
+
+@copying
+
+This manual documents barch, a backup archiver.
+
+Copyright @copyright{} 2005 Bruce Guenter
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@end copying
+
+@dircategory Archiving
+@direntry
+* Barch: (barch).               Making backup archives.
+@end direntry
+
+@dircategory Individual utilities
+@direntry
+* barch: (barch)barch invocation.               Invoking barch.
+@end direntry
+
+@titlepage
+@title Barch: A backup archive tool.
+@subtitle Version @value{VERSION}, @value{UPDATED}
+@author Bruce Guenter
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@node Top, Introduction, (dir), (dir)
+
+@menu
+* Introduction::                
+* Design Notes::                
+* File Format::                 
+@end menu
+
+@c ****************************************************************************
+@node Introduction, Design Notes, Top, Top
+@chapter Introduction
+
+@c ****************************************************************************
+@node Design Notes, File Format, Introduction, Top
+@chapter Design Notes
+
+@section Listed Incrementals
+
+Problem: tar, when doing listed incrementals, scans the entire
+filesystem, memorizes the list of files, and then writes them to the
+archive, creating potential inconsistencies and warnings.
+
+Solution: barch writes out the directory listings _after_ the files
+within the directory.  This allows the directory memorization to be done
+in a single pass at the same time as actually archiving those files.
+
+@section Restoring Directories
+
+Problem: tar has problems with restoring directories that originally
+had no write bits set.
+
+Solution: since barch writes out the directory listings after, the
+modes on the directories are set after restoring the entire contents
+of the directory.
+
+@section Changed Files
+
+Problem: when backing up changed files, cpio, tar, or zip will
+re-archive the entire file, even if only small parts of it has
+changed.
+
+Solution: barch will (eventually) use an algorithm similar to that of
+rsync to encode only the differences between the previous known data and
+the current data.  The first implementation of this algorithm will only
+do a common prefix scan.  The checksum values will be stored in a CDB
+table along with the directory listings.  To prevent this table from
+becoming huge, the checksum block size will be set large, at 4K or 8K
+(rsync prefers an approximately 500 byte block size), with 20 bytes per
+checksum (32 bit fast checksum, plus 128 bit MD5 hash).
+
+@section Changing Length
+
+Problem: tar fails to properly archive files that change length.  If
+the file shrinks, it gets padded with NUL bytes, and if it expands,
+the extra data is ignored.
+
+Solution: barch writes records to the archive in length-prefixed
+chunks.  This solution also accomodates record data for which the
+length is not known when the prefix is written.
+
+@section Internal Path Naming
+
+Issue: should filenames be written to the archive as (directory ID,
+file name) pairs (similar to @command{rar}), or as full filenames
+(like @command{tar} or @command{zip})?
+
+The first suggestion makes the archive metadata smaller by shrinking
+the file name information.  It also makes the decisions regarding if
+each member is within a listed path to extract much simpler.
+
+The second suggestion is best for reliability -- if a directory entry
+is lost, we can't get out of sync with the filesystem.
+
+Resolution: use full filenames.
+
+@section Temporary Files
+
+Barch, when extracting files, writes all data to temporary files
+which are then renamed (by default).  This prevents the files from being
+either inconsistent or corrupted while data is being extracted.
+
+@section KISS Principle
+
+I feel that tar does too much that could be better achieved through
+external programs.  The reblocking facility would be better served by an
+external program, such as dd or multibuf (which also does streaming)
+which can have many more options than tar does.  The reblocking facility
+will be explicitly omitted from barch, and possibly other features.
+
+@c ****************************************************************************
+@node File Format,  , Design Notes, Top
+@chapter File Format
+
+All numbers are encoded in ASCII decimal, unless another base is
+specified, terminated by either a colon (@samp{:}) or a NUL byte.
+
+@section Basic Format
+
+A BArch file consists of a stream of records.  Each record contains
+the following parts:
+
+@enumerate
+
+@item The constant string "=BArch3\n" (in hex: 3d 42 41 72 63 68 33 0a)
+
+@item A single byte identifying the record type
+
+@item The path, followed by a NUL byte
+
+@item The metadata string, followed by a NUL byte
+
+@item A series of data chunks composed of:
+
+  @enumerate
+  @item The record content length (L), followed by a colon
+  @item L bytes of content data
+  @end enumerate
+
+@item A zero-byte chunk
+
+@item CRC64 checksum on the data starting at the record type byte and
+ending at the last byte of the data
+
+@item Optional NUL padding: enough NUL bytes to pad the record out to a
+multiple of blocksize bytes if the blocksize is non-zero (defaults to
+zero).
+
+@end enumerate
+
+@section Record Types
+
+@multitable @columnfractions 0.15 0.05 0.4 0.4
+
+@headitem Record type @tab Symbol @tab Metadata Description @tab
+Content Description
+
+@item Start-of-archive
+@tab @samp{^}
+@tab A series of parameters separated by @samp{&}.  The name and value
+in a parameter are seperated by @samp{=} and the contents are
+URL-encoded.
+@tab A list of the paths used to build the archive, each terminated
+with a NUL byte, prefixed with either a @samp{+} (included paths), or
+a @samp{-} (excluded paths).  This will eventually be used to
+determine which paths to extract could be in the archive before
+scanning the archive, to reduce search overheads.
+
+@item Directory
+@tab @samp{d}
+@tab Standard file metadata
+@tab A list of all the files in the directory, separated by a NUL byte
+
+@item File
+@tab @samp{f}
+@tab Standard file metadata
+@tab The raw contents of the file
+
+@item Incremental File
+@tab @samp{i}
+@tab Standard file metadata
+@tab Undetermined
+
+@item Block Device
+@tab @samp{b}
+@tab Standard file metadata
+@tab The major and minor numbers, in hexadecimal, separated by a comma
+
+@item Character Device
+@tab @samp{c}
+@tab Standard file metadata
+@tab The major and minor numbers, in hexadecimal, separated by a comma
+
+@item Hard Link
+@tab @samp{h}
+@tab None
+@tab The path being linked to
+
+@item Symbolic Link
+@tab @samp{l}
+@tab None
+@tab The path being linked to
+
+@item Named Pipe
+@tab @samp{p}
+@tab Standard file metadata
+@tab None
+
+@item Named Socket
+@tab @samp{s}
+@tab Standard file metadata
+@tab None
+
+@item End-of-archive
+@tab @samp{#}
+@tab None
+@tab None
+
+@end multitable
+
+@section Standard File Metadata
+
+The standard file metadata is composed of a series of tagged values
+seperated by colons.
+
+@table @samp
+
+@item s
+File size (distinct from data size).
+
+@item p
+UNIX file mode, in octal
+
+@item c
+Change time
+
+@item m
+Modification time
+
+@item o
+Owner ID number
+
+@item g
+Group ID number
+
+@item O
+Owner name
+
+@item G
+Group name
+
+@end table
+
+Times are represented as the number of seconds since the UNIX
+epoch (midnight GMT January 1, 1970).  For example:
+
+@example
+s130:p755:c1122925710:m1122925710:o500:Obruce:g500:Gguenter
+@end example
+
+@section Prefix Record Parameters
+
+The following parameters are written in the prefix record to identify
+parameters detailing how the archive was created for the extractor:
+
+@table @samp
+
+@item incremental
+Has non-zero value if the archive was created with incremental mode
+turned on, zero otherwise.
+
+@end table
