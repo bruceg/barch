@@ -17,11 +17,6 @@ Create:
      names.  `tar' will archive files with newer mod dates or inode change
      times, and directories with an unchanged inode number and device but a
      changed directory name.
-  - IOW:
-    - Record all directory listings (as usual)
-    - Record all files newer than the snapshot timestamp
-    - Look up directory dev/inode in snapshot
-    - If name does not match, record all contents of directory
 
 Extract:
 
@@ -34,3 +29,8 @@ Extract:
 - unhandled file types:
     b -- block device
     c -- character device
+
+- Incremental restore:
+  - For each directory listed in the archive:
+    - Unlink files in the destination not listed in the directory record
+    - Warn about files not present in the destination

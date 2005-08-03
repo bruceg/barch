@@ -56,7 +56,7 @@ GHASH_DEFN(dicache,struct devino,char*,
 static struct ghash dicache;
 
 /*****************************************************************************/
-static void dump_rec(const char* path, const struct stat* parent, int addall);
+static void dump_rec(const char* path, const struct stat* parent);
 
 static void dump_file(const char* path, const struct stat* st)
 {
@@ -72,8 +72,7 @@ static void dump_file(const char* path, const struct stat* st)
   }
 }
 
-static void dump_dir(const char* path, struct stat* st,
-		     int recurse, int addall)
+static void dump_dir(const char* path, struct stat* st, int recurse)
 {
   DIR* dir;
   direntry* entry;
@@ -98,7 +97,7 @@ static void dump_dir(const char* path, struct stat* st,
       fullpath.len = pathlen;
       if (!str_cats(&fullpath, name)) die_oom(1);
       if (check_filename(fullpath.s, 0, 0)) {
-	dump_rec(fullpath.s, st, addall);
+	dump_rec(fullpath.s, st);
 	if (opt_incremental)
 	  if (!str_cats(&entries, name) ||
 	      !str_catc(&entries, 0))
@@ -160,7 +159,7 @@ static void dump_symlink(const char* path, struct stat* st)
   show_record(TYPE_SYMLINK, path, st, len, 0, 0, 0, 0);
 }
 
-static void dump_rec(const char* path, const struct stat* parent, int addall)
+static void dump_rec(const char* path, const struct stat* parent)
 {
   struct stat st;
   if (!check_filename(path, 0, 0)) return;
@@ -170,10 +169,8 @@ static void dump_rec(const char* path, const struct stat* parent, int addall)
     struct devino di;
     const struct dicache_entry* e;
     /* Check if the file has been recently modified */
-    if (!addall
-	&& !S_ISDIR(st.st_mode)
-	&& (st.st_mtime < opt_timestamp
-	    && st.st_ctime < opt_timestamp))
+    if (!S_ISDIR(st.st_mode) &&
+	(st.st_mtime < opt_timestamp && st.st_ctime < opt_timestamp))
       return;
     /* Check if the file has already been added to the archive */
     di.dev = st.st_dev;
@@ -197,8 +194,7 @@ static void dump_rec(const char* path, const struct stat* parent, int addall)
 	dump_dir(path, &st,
 		 !opt_onefilesystem
 		 || (parent == 0)
-		 || (parent->st_dev == st.st_dev),
-		 addall);
+		 || (parent->st_dev == st.st_dev));
       else if (S_ISLNK(st.st_mode))
 	dump_symlink(path, &st);
       else if (S_ISCHR(st.st_mode))
@@ -225,7 +221,7 @@ int do_create(int argc, char* argv[])
   snapshot_open();
   do_chdir();
   for (i = 0; i < argc; ++i)
-    dump_rec(argv[i], 0, 0);
+    dump_rec(argv[i], 0);
   obuf_flush(list);
   close_output();
   snapshot_close();
