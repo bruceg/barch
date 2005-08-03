@@ -1,23 +1,23 @@
 mkdir $tmp/d
 
 echo hello >$tmp/d/hello
-./barch -cgf $tmp/1.barch -C $tmp d
+./barch -cGf $tmp/1.barch -C $tmp d
 echo world >$tmp/d/world
-./barch -cgf $tmp/2.barch -C $tmp d
+./barch -cGf $tmp/2.barch -C $tmp d
 rm -f $tmp/d/hello
-./barch -cgf $tmp/3.barch -C $tmp d
+./barch -cGf $tmp/3.barch -C $tmp d
 
 rm $tmp/d/*
 
-./barch -xgf $tmp/1.barch -C $tmp
+./barch -xGf $tmp/1.barch -C $tmp
 ( cd $tmp && head -v d/*; )
 echo .
 
-./barch -xgf $tmp/2.barch -C $tmp
+./barch -xGf $tmp/2.barch -C $tmp
 ( cd $tmp && head -v d/*; )
 echo .
 
-./barch -xgf $tmp/3.barch -C $tmp
+./barch -xGf $tmp/3.barch -C $tmp
 ( cd $tmp && head -v d/*; )
 
 rm -rf $tmp/d

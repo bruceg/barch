@@ -79,6 +79,7 @@ static void dump_dir(const char* path, struct stat* st, int recurse)
   str fullpath = {0,0,0};
   str entries = {0,0,0};
   long pathlen;
+  snapshot_add(st, path);
   if (recurse) {
     if ((dir = opendir(path)) == 0) {
       error3sys("Could not open directory '", path, "'");
@@ -187,7 +188,6 @@ static void dump_rec(const char* path, const struct stat* parent)
     }
     else {
       dicache_add(&dicache, &di, (char**)&path);
-      snapshot_add(&st, path);
       if (S_ISREG(st.st_mode))
 	dump_file(path, &st);
       else if (S_ISDIR(st.st_mode))

@@ -60,7 +60,7 @@ cli_option cli_options[] = {
   { 0, "Operation modifiers", CLI_SEPARATOR, 0, 0, 0, 0 },
   { 'G', "incremental", CLI_FLAG, 1, &opt_incremental,
     "Incremental backup or restore", 0 },
-  { 'g', "listed-incremental", CLI_FLAG, 1, &opt_incremental,
+  { 'g', "listed-incremental", CLI_STRING, 0, &opt_snapshot,
     "Synonymous for --incremental", 0 },
   { 0, "overwrite-files", CLI_FLAG, 0, &opt_usetmp,
     "Don't extract to temporary files first", 0 },
@@ -120,8 +120,6 @@ cli_option cli_options[] = {
     "Same as --newer", 0 },
   { 0, "one-file-system", CLI_FLAG, 1, &opt_onefilesystem,
     "Do not recurse into different file systems", 0 },
-  { 0, "snapshot", CLI_STRING, 0, &opt_snapshot,
-    "Snapshot CDB for creating incremental archives", 0 },
 
   { 0, "Informative output", CLI_SEPARATOR, 0, 0, 0, 0 },
   { 'v', "verbose", CLI_COUNTER, 1, &opt_verbose,
@@ -288,6 +286,7 @@ int cli_main(int argc, char* argv[])
   pwcache_init();
   parse_timestamp();
   make_iobuf();
+  if (opt_snapshot != 0) opt_incremental = 1;
 
   if (cmd_create) return do_create(argc, argv);
   if (cmd_list) return do_list(argc, argv);
