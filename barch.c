@@ -135,7 +135,7 @@ cli_option cli_options[] = {
 };
 
 pid_t pid;
-time_t start_time;
+struct timeval start_time;
 
 static int cwd_fd;
 
@@ -285,7 +285,7 @@ int cli_main(int argc, char* argv[])
     die1(1, "Must specify exactly one of create, list, or extract");
 
   pid = getpid();
-  start_time = time(0);
+  gettimeofday(&start_time, 0);
   pwcache_init();
   parse_timestamp();
   make_iobuf();

@@ -47,7 +47,7 @@ extern int opt_onefilesystem;
 
 extern const char stamp[8];
 extern pid_t pid;
-extern time_t start_time;
+extern struct timeval start_time;
 extern char* iobuffer;
 extern unsigned long iobuflen;
 
