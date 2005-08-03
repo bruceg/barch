@@ -35,9 +35,11 @@ destination that are not listed in the archive are removed.
 .TP
 .B -g FILE, --listed-incremental=FILE
 Enables incremental mode as described above, but also records a snapshot
-of all directories traversed into the named file.  This feature is not
-yet useful, since the resulting file is only written and not used by any
-part of this program.
+of the time when the archive was started and all directories traversed
+into the named file.  If the snapshot file previously existed, the
+contents of the output archive are limited to files that are newer than
+the timestamp in the file and all the contents of directories that do
+not match the information in the snapshot (ie have been renamed).
 .TP
 .B --overwrite-files
 When extracting an archive, overwrite files directly instead of using
