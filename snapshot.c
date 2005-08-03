@@ -39,7 +39,8 @@ void snapshot_open(void)
       case -1: die_oom(1);
       case 0: die1(1, "Could not find timestamp record in snapshot file");
       }
-      if ((timestamp = strtoul(data.s, &end, 10)) == 0 || *end != 0)
+      if ((timestamp = strtoul(data.s, &end, 10)) == 0
+	  || (*end != 0 && *end != '.'))
 	die1(1, "Timestamp in snapshot file is corrupted");
       if (timestamp > opt_timestamp)
 	opt_timestamp = timestamp;
@@ -51,9 +52,11 @@ void snapshot_open(void)
       die3sys(1, "Could not open temporary snapshot file for writing, '",
 	      writer_tmp.s, "'");
     data.len = 0;
-    if (cdb_make_start(&writer, fd) != 0 ||
-	!str_catu(&data, start_time.tv_sec) ||
-	cdb_make_add(&writer, 0, 0, data.s, data.len) != 0) {
+    if (cdb_make_start(&writer, fd) != 0
+	|| !str_catu(&data, start_time.tv_sec)
+	|| !str_catc(&data, '.')
+	|| !str_catuw(&data, start_time.tv_usec, 6, '0')
+	|| cdb_make_add(&writer, 0, 0, data.s, data.len) != 0) {
       unlink(writer_tmp.s);
       die_oom(1);
     }
