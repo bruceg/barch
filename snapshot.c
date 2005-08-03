@@ -24,10 +24,9 @@ static struct cdb_make writer;
 static str key;
 static str data;
 
-time_t snapshot_time = 0;
-
 void snapshot_open(void)
 {
+  time_t timestamp;
   if (!opt_snapshot) return;
   if ((reader_fd = open(opt_snapshot, O_RDONLY)) == -1) {
     if (errno != ENOENT)
@@ -41,8 +40,10 @@ void snapshot_open(void)
     case -1: die_oom(1);
     case 0: die1(1, "Could not find timestamp record in snapshot file");
     }
-    if ((snapshot_time = strtoul(data.s, &end, 10)) == 0 || *end != 0)
+    if ((timestamp = strtoul(data.s, &end, 10)) == 0 || *end != 0)
       die1(1, "Timestamp in snapshot file is corrupted");
+    if (timestamp > opt_timestamp)
+      opt_timestamp = timestamp;
   }
   if (!str_copy2s(&writer_tmp, opt_snapshot, ".barch.tmp.") ||
       !str_catu(&writer_tmp, pid) ||

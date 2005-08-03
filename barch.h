@@ -91,7 +91,6 @@ extern void show_record(char type, const char* path,
 			const char* linktype, const char* linkdest);
 
 /* snapshot.c */
-extern time_t snapshot_time;
 extern void snapshot_open(void);
 extern void snapshot_close(void);
 extern void snapshot_abort(void);
