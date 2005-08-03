@@ -289,10 +289,10 @@ int cli_main(int argc, char* argv[])
   pwcache_init();
   parse_timestamp();
   make_iobuf();
-  if (opt_snapshot != 0) {
-    opt_incremental = 1;
+  if (opt_snapshot != 0)
     opt_differential = opt_snapshot;
-  }
+  if (opt_differential != 0)
+    opt_incremental = 1;
 
   if (cmd_create) return do_create(argc, argv);
   if (cmd_list) return do_list(argc, argv);
