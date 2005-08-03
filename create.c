@@ -80,7 +80,6 @@ static void dump_dir(const char* path, struct stat* st,
   str fullpath = {0,0,0};
   str entries = {0,0,0};
   long pathlen;
-  snapshot_add(st, path);
   if (recurse) {
     if ((dir = opendir(path)) == 0) {
       error3sys("Could not open directory '", path, "'");
@@ -169,9 +168,13 @@ static void dump_rec(const char* path, const struct stat* parent, int addall)
   else {
     struct devino di;
     const struct dicache_entry* e;
+    const char* snapfile = snapshot_lookup(&st);
+    const int snapdiffers = (snapfile == 0) || (strcmp(snapfile, path) != 0);
+    snapshot_add(&st, path);
     /* Check if the file has been recently modified */
     if (!addall
 	&& !S_ISDIR(st.st_mode)
+	&& !snapdiffers
 	&& (st.st_mtime < opt_timestamp
 	    && st.st_ctime < opt_timestamp))
       return;
@@ -193,16 +196,12 @@ static void dump_rec(const char* path, const struct stat* parent, int addall)
       dicache_add(&dicache, &di, (char**)&path);
       if (S_ISREG(st.st_mode))
 	dump_file(path, &st);
-      else if (S_ISDIR(st.st_mode)) {
-	const char* snapfile = snapshot_lookup(&st);
+      else if (S_ISDIR(st.st_mode))
 	dump_dir(path, &st,
 		 !opt_onefilesystem
 		 || (parent == 0)
 		 || (parent->st_dev == st.st_dev),
-		 addall
-		 || (snapfile != 0
-		     && strcmp(snapfile, path) != 0));
-      }
+		 addall || snapdiffers);
       else if (S_ISLNK(st.st_mode))
 	dump_symlink(path, &st);
       else if (S_ISCHR(st.st_mode))
