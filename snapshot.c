@@ -46,17 +46,13 @@ void snapshot_open(void)
     }
   }
   if (opt_snapshot) {
-    if (!str_copy2s(&writer_tmp, opt_snapshot, ".barch.tmp.") ||
-	!str_catu(&writer_tmp, pid) ||
-	!str_catc(&writer_tmp, '.') ||
-	!str_catu(&writer_tmp, start_time))
-      die_oom(1);
+    temppath(opt_snapshot, &writer_tmp);
     if ((fd = open(writer_tmp.s, O_WRONLY|O_EXCL|O_CREAT, 0666)) == -1)
       die3sys(1, "Could not open temporary snapshot file for writing, '",
 	      writer_tmp.s, "'");
     data.len = 0;
     if (cdb_make_start(&writer, fd) != 0 ||
-	!str_catu(&data, start_time) ||
+	!str_catu(&data, start_time.tv_sec) ||
 	cdb_make_add(&writer, 0, 0, data.s, data.len) != 0) {
       unlink(writer_tmp.s);
       die_oom(1);

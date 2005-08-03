@@ -26,14 +26,8 @@ static str linkpath;
 
 static const char* dest_path(const char* path)
 {
-  if (opt_usetmp) {
-    if (!str_copy2s(&tmp_path, path, ".tmp.barch.") ||
-	!str_catu(&tmp_path, pid) ||
-	!str_catc(&tmp_path, '.') ||
-	!str_catu(&tmp_path, start_time))
-      die_oom(1);
-    path = tmp_path.s;
-  }
+  if (opt_usetmp)
+    path = temppath(path, &tmp_path);
   return path;
 }
 

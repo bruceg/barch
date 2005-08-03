@@ -98,6 +98,9 @@ extern void snapshot_abort(void);
 extern const char* snapshot_lookup(const struct stat* st);
 extern int snapshot_add(const struct stat* st, const char* path);
 
+/* temppath.c */
+extern const char* temppath(const char* prefix, str* path);
+
 /* write.c */
 extern void open_output(int argc, char* argv[]);
 extern void close_output(void);
