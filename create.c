@@ -58,6 +58,13 @@ static struct ghash dicache;
 /*****************************************************************************/
 static void dump_rec(const char* path, const struct stat* parent, int addall);
 
+static void opt_remove(const char* path)
+{
+  if (opt_removefiles)
+    if (unlink(path) != 0)
+      error3sys("Cannot unlink '", path, "'");
+}
+
 static void dump_file(const char* path, const struct stat* st)
 {
   int fd;
@@ -69,6 +76,7 @@ static void dump_file(const char* path, const struct stat* st)
     write_end();
     show_record(TYPE_FILE, path, st, st->st_size, 0, 0, 0, 0);
     close(fd);
+    opt_remove(path);
   }
 }
 
@@ -134,6 +142,7 @@ static void dump_device(const char* path, struct stat* st, char type)
   write_data(numbers.s, numbers.len);
   write_end();
   show_record(type, path, st, numbers.len, 0, 0, 0, 0);
+  opt_remove(path);
 }
 
 static void dump_special(const char* path, struct stat* st, char type)
@@ -142,6 +151,7 @@ static void dump_special(const char* path, struct stat* st, char type)
   write_meta(type, path, st);
   write_end();
   show_record(type, path, st, 0, 0, 0, 0, 0);
+  opt_remove(path);
 }
 
 static void dump_symlink(const char* path, struct stat* st)
@@ -157,6 +167,7 @@ static void dump_symlink(const char* path, struct stat* st)
   write_data(iobuffer, len);
   write_end();
   show_record(TYPE_SYMLINK, path, st, len, 0, 0, 0, 0);
+  opt_remove(path);
 }
 
 static void dump_rec(const char* path, const struct stat* parent, int addall)

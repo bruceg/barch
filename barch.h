@@ -44,6 +44,7 @@ extern int opt_verbose;
 extern int opt_totals;
 extern int opt_compress;
 extern int opt_onefilesystem;
+extern int opt_removefiles;
 
 extern const char stamp[8];
 extern pid_t pid;

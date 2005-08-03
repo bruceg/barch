@@ -35,6 +35,7 @@ time_t opt_timestamp = 0;
 int opt_totals = 0;
 int opt_compress = 0;
 int opt_onefilesystem = 0;
+int opt_removefiles = 0;
 
 static int cmd_create = 0;
 static int cmd_list = 0;
@@ -67,6 +68,8 @@ cli_option cli_options[] = {
     "Listed incremental backup (no update)", 0 },
   { 0, "overwrite-files", CLI_FLAG, 0, &opt_usetmp,
     "Don't extract to temporary files first", 0 },
+  { 0, "remove-files", CLI_FLAG, 1, &opt_removefiles,
+    "Remove files after adding them to archive", 0 },
   { 'j', "bzip2", CLI_FLAG, COMPRESS_BZ2, &opt_compress,
     "Filter the archive through bzip2", 0 },
   { 'z', "gzip", CLI_FLAG, COMPRESS_GZ, &opt_compress,

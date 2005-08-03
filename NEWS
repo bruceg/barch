@@ -12,6 +12,8 @@ Changes in version 0.6
 
 - Fixed a couple of minor bugs in extracting incremental backups.
 
+- Added --remove-files option.
+
 Development of this version has been sponsored by FutureQuest, Inc.
 ossi@FutureQuest.net  http://www.FutureQuest.net/
 -------------------------------------------------------------------------------
