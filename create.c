@@ -168,15 +168,12 @@ static void dump_rec(const char* path, const struct stat* parent, int addall)
   else {
     struct devino di;
     const struct dicache_entry* e;
-    const char* snapfile = snapshot_lookup(&st);
-    const int snapdiffers = (snapfile == 0) || (strcmp(snapfile, path) != 0);
-    snapshot_add(&st, path);
+    if (S_ISDIR(st.st_mode))
+      snapshot_add(&st, path);
     /* Check if the file has been recently modified */
-    if (!addall
-	&& !S_ISDIR(st.st_mode)
-	&& !snapdiffers
-	&& (st.st_mtime < opt_timestamp
-	    && st.st_ctime < opt_timestamp))
+    else if (!addall
+	     && (st.st_mtime < opt_timestamp
+		 && st.st_ctime < opt_timestamp))
       return;
     /* Check if the file has already been added to the archive */
     di.dev = st.st_dev;
@@ -196,12 +193,16 @@ static void dump_rec(const char* path, const struct stat* parent, int addall)
       dicache_add(&dicache, &di, (char**)&path);
       if (S_ISREG(st.st_mode))
 	dump_file(path, &st);
-      else if (S_ISDIR(st.st_mode))
+      else if (S_ISDIR(st.st_mode)) {
+	const char* snapfile = snapshot_lookup(&st);
 	dump_dir(path, &st,
 		 !opt_onefilesystem
 		 || (parent == 0)
 		 || (parent->st_dev == st.st_dev),
-		 addall || snapdiffers);
+		 addall
+		 || (snapfile == 0)
+		 || (strcmp(snapfile, path) != 0));
+      }
       else if (S_ISLNK(st.st_mode))
 	dump_symlink(path, &st);
       else if (S_ISCHR(st.st_mode))

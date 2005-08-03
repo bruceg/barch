@@ -35,11 +35,12 @@ destination that are not listed in the archive are removed.
 .TP
 .B -g FILE, --listed-incremental=FILE
 Enables incremental mode as described above, but also records a snapshot
-of the time when the archive was started and all filenames into the
-named file.  If the snapshot file previously existed, the contents of
-the output archive are limited to files that are newer than the
-timestamp in the file, files that have been renamed or replaced, and all
-files within directories that have been renamed or replaced.
+of the time when the archive was started and all directories traversed
+into the named file.  If the snapshot file previously existed, the
+contents of the output archive are limited to files that have been
+modified in any way (including being renamed) more recently than the
+timestamp in the file and the entire contents of directories that have
+been renamed or replaced.
 .TP
 .B --differential=FILE
 Similar to the listed-incremental mode above, this mode uses the
