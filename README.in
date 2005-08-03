@@ -6,10 +6,7 @@ Version @VERSION@
 
 This package contains an archiver, similar to tar, but designed
 specifically to improve on some of the deficiencies that tar has.
-
-Right now the implementation is pretty bare bones, but it is being
-released as a kind of "proof of concept" in the hopes of getting some
-feedback on the concepts and/or preliminary implementation.
+See the barch.info or barch.html files for more details.
 
 A mailing list has been set up to discuss this and other packages.
 To subscribe, send an email to:
@@ -22,8 +19,8 @@ Development versions of @PACKAGE@ are available via Subversion at:
 
 Installation:
 
-- Make sure the latest version of bglibs from
-  http://untroubled.org/bglibs/ is compiled and installed.
+- Make sure the version 1.024 or later of bglibs is installed from
+	http://untroubled.org/bglibs/
 - Build the sources by running "make"
 - After the package has been compiled, run the following command as root:
   	make install
