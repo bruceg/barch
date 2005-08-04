@@ -135,10 +135,10 @@ static void dump_device(const char* path, struct stat* st, char type)
   numbers.len = 0;
   if (!str_catu(&numbers, major(st->st_rdev)) ||
       !str_catc(&numbers, ',') ||
-      !str_catc(&numbers, minor(st->st_rdev)))
+      !str_catu(&numbers, minor(st->st_rdev)))
     die_oom(1);
   st->st_size = 0;
-  write_prefix(type, path, "");
+  write_meta(type, path, st);
   write_data(numbers.s, numbers.len);
   write_end();
   show_record(type, path, st, numbers.len, 0, 0, 0, 0);
