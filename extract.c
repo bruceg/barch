@@ -77,7 +77,6 @@ static void extract_hardlink(const char* path)
   show_record(TYPE_HARDLINK, path, 0, linkpath.len, 0, 0,
 	      " link to ", linkpath.s);
   if (read_end(path)) {
-    /* FIXME: hardlink to temporary path */
     if (link(linkpath.s, make_path(path)) == -1) {
       error5sys("Could not link '", path, "' to '", linkpath.s, "'");
       abort_path();
@@ -295,9 +294,8 @@ static void extract_pipe(const char* path, const char* meta)
     if (mknod(make_path(path), S_IFIFO, 0) != 0)
       error3sys("Could not create pipe '", path, "'");
     else {
-      // FIXME: Should set mode before renaming, not other way around.
-      finish_path(path);
       set_mode(dest_path, &st);
+      finish_path(path);
     }
   }
 }
@@ -325,9 +323,8 @@ static void extract_device(const char* path, const char* meta,
     if (mknod(make_path(path), mode, makedev(major, minor)) != 0)
       error3sys("Could not create device '", path, "'");
     else {
-      // FIXME: Should set mode before renaming, not other way around.
+      set_mode(dest_path, &st);
       finish_path(path);
-      set_mode(path, &st);
     }
   }
 }
