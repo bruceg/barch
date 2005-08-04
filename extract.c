@@ -21,22 +21,22 @@
 static str uname;
 static str gname;
 
-static str tmp_path;
+static const char* dest_path;
 static str linkpath;
 
-static const char* dest_path(const char* path)
+static const char* make_path(const char* path)
 {
-  if (opt_usetmp)
-    path = temppath(path, &tmp_path);
-  return path;
+  static str tmp;
+  dest_path = opt_usetmp ? temppath(path, &tmp) : path;
+  return dest_path;
 }
 
 static void finish_path(const char* path)
 {
   if (opt_usetmp) {
-    if (rename(tmp_path.s, path) != 0) {
-      error5sys("Error renaming '", tmp_path.s, "' to '", path, "'");
-      unlink(tmp_path.s);
+    if (rename(dest_path, path) != 0) {
+      error5sys("Error renaming '", dest_path, "' to '", path, "'");
+      unlink(dest_path);
     }
   }
 }
@@ -44,7 +44,7 @@ static void finish_path(const char* path)
 static void abort_path(void)
 {
   if (opt_usetmp)
-    unlink(tmp_path.s);
+    unlink(dest_path);
 }
 
 static void xlate_meta(struct stat* st, const char* meta)
@@ -78,7 +78,7 @@ static void extract_hardlink(const char* path)
 	      " link to ", linkpath.s);
   if (read_end(path)) {
     /* FIXME: hardlink to temporary path */
-    if (link(linkpath.s, dest_path(path)) == -1) {
+    if (link(linkpath.s, make_path(path)) == -1) {
       error5sys("Could not link '", path, "' to '", linkpath.s, "'");
       abort_path();
     }
@@ -92,7 +92,7 @@ static void extract_symlink(const char* path)
   read_str(&linkpath);
   show_record(TYPE_HARDLINK, path, 0, linkpath.len, 0, 0, " -> ", linkpath.s);
   if (read_end(path)) {
-    if (symlink(linkpath.s, dest_path(path)) == -1) {
+    if (symlink(linkpath.s, make_path(path)) == -1) {
       error5sys("Could not symlink '", path, "' to '", linkpath.s, "'");
       abort_path();
     }
@@ -128,7 +128,7 @@ static int mkdirprefix(const char* fullpath)
 static int open_write(const char* path)
 {
   int fd;
-  path = dest_path(path);
+  path = make_path(path);
   /* Common case first -- just open the file */
   if ((fd = open(path, O_WRONLY|O_TRUNC|O_CREAT, 0600)) != -1) return fd;
   if (errno != ENOENT) return fd;
@@ -140,10 +140,10 @@ static int open_write(const char* path)
 static void close_write(int fd, const char* path, const struct stat* st)
 {
   if (opt_usetmp) {
-    fset_mode(fd, tmp_path.s, st);
+    fset_mode(fd, dest_path, st);
     if (close(fd) != 0) {
-      error3sys("Error closing '", tmp_path.s, "'");
-      unlink(tmp_path.s);
+      error3sys("Error closing '", dest_path, "'");
+      unlink(dest_path);
     }
     else
       finish_path(path);
@@ -292,12 +292,12 @@ static void extract_pipe(const char* path, const char* meta)
   xlate_meta(&st, meta);
   show_record(TYPE_PIPE, path, &st, length, uname.s, gname.s, 0, 0);
   if (read_end(path)) {
-    if (mknod(dest_path(path), S_IFIFO, 0) != 0)
+    if (mknod(make_path(path), S_IFIFO, 0) != 0)
       error3sys("Could not create pipe '", path, "'");
     else {
       // FIXME: Should set mode before renaming, not other way around.
       finish_path(path);
-      set_mode(path, &st);
+      set_mode(dest_path, &st);
     }
   }
 }
@@ -322,7 +322,7 @@ static void extract_device(const char* path, const char* meta,
       || (minor = strtoul(end+1, (char**)&end, 10), *end) != 0)
     error3("Invalid data for device '", path, "'");
   else {
-    if (mknod(dest_path(path), mode, makedev(major, minor)) != 0)
+    if (mknod(make_path(path), mode, makedev(major, minor)) != 0)
       error3sys("Could not create device '", path, "'");
     else {
       // FIXME: Should set mode before renaming, not other way around.
