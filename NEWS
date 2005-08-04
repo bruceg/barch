@@ -14,6 +14,8 @@ Changes in version 0.6
 
 - Added --remove-files option.
 
+- Added full support for extracting device nodes.
+
 Development of this version has been sponsored by FutureQuest, Inc.
 ossi@FutureQuest.net  http://www.FutureQuest.net/
 -------------------------------------------------------------------------------

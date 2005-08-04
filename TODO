@@ -15,7 +15,3 @@ Extract:
 --[no-]same-permissions / --preserve-permissions
 
 - Validate the SOA parameters.
-
-- unhandled file types:
-    b -- block device
-    c -- character device

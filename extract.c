@@ -292,8 +292,38 @@ static void extract_pipe(const char* path, const char* meta)
   xlate_meta(&st, meta);
   show_record(TYPE_PIPE, path, &st, length, uname.s, gname.s, 0, 0);
   if (read_end(path)) {
-    if (mknod(dest_path(path), 0, S_IFIFO) != 0)
+    if (mknod(dest_path(path), S_IFIFO, 0) != 0)
       error3sys("Could not create pipe '", path, "'");
+    else {
+      // FIXME: Should set mode before renaming, not other way around.
+      finish_path(path);
+      set_mode(path, &st);
+    }
+  }
+}
+
+static void extract_device(const char* path, const char* meta,
+			   char type, mode_t mode)
+{
+  struct stat st;
+  unsigned long length;
+  unsigned long major;
+  unsigned long minor;
+  const char* end;
+
+  length = read_str(&linkpath);
+  if (!read_end(path))
+    return;
+  xlate_meta(&st, meta);
+  show_record(type, path, &st, length, uname.s, gname.s, 0, 0);
+
+  if (length == 0
+      || (major = strtoul(linkpath.s, (char**)&end, 10), *end) != ','
+      || (minor = strtoul(end+1, (char**)&end, 10), *end) != 0)
+    error3("Invalid data for device '", path, "'");
+  else {
+    if (mknod(dest_path(path), mode, makedev(major, minor)) != 0)
+      error3sys("Could not create device '", path, "'");
     else {
       // FIXME: Should set mode before renaming, not other way around.
       finish_path(path);
@@ -318,6 +348,8 @@ int do_extract(int argc, char* argv[])
       case TYPE_FILE:     extract_file(path.s, meta.s); break;
       case TYPE_DIR:      extract_dir(path.s, meta.s); break;
       case TYPE_PIPE:     extract_pipe(path.s, meta.s); break;
+      case TYPE_CHAR:     extract_device(path.s, meta.s, type, S_IFCHR); break;
+      case TYPE_BLOCK:    extract_device(path.s, meta.s, type, S_IFBLK); break;
       case TYPE_SOCKET:
 	warn3("Cannot extract socket '", path.s, "'");
 	break;
